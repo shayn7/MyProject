@@ -14,6 +14,7 @@ public class Listeners implements ITestListener {
 
     private static final Logger log = LoggerFactory.getLogger(Listeners.class);
 
+
     @Override
     public void onTestFailure(ITestResult result){
         log.info(String.format("test %s was failed", result.getName()));
