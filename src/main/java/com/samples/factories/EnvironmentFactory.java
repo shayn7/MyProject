@@ -1,5 +1,6 @@
 package com.samples.factories;
 
+import com.samples.enums.Environments;
 import com.samples.steps.BaseSteps;
 import com.samples.steps.ChromeSteps;
 import com.samples.steps.FirefoxSteps;
@@ -14,6 +15,8 @@ public class EnvironmentFactory {
                 return new ChromeSteps(CHROME);
             case "firefox":
                 return new FirefoxSteps(FIREFOX);
+            case "remote":
+                return new ChromeSteps(Environments.REMOTE);
 
             default: throw new RuntimeException("environment not supported!!");
         }

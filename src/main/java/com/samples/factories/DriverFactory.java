@@ -8,6 +8,10 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class DriverFactory {
 
@@ -24,5 +28,20 @@ public class DriverFactory {
 
             default: throw new RuntimeException("driver not created!");
         }
+    }
+
+    public static synchronized WebDriver getRemoteDriver(String remoteUrl, MutableCapabilities options){
+        URL url = getUrl(remoteUrl);
+        return new RemoteWebDriver(url, options);
+    }
+
+    private static URL getUrl(String remoteUrl) {
+        URL url = null;
+        try {
+            url = new URL(remoteUrl);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
     }
 }

@@ -12,19 +12,15 @@ import org.testng.annotations.Listeners;
 
         protected BaseSteps baseSteps;
         protected String endpoint;
-        protected static final String BASE_URL = "https://www.is.com";
+        protected static final String BASE_URL = "https://zalmoxisus.github.io/examples/todomvc/";
 
         public BaseSteps getBaseSteps(){
             return baseSteps;
         }
 
         @BeforeSuite
-        public void setData() {
-            endpoint = System.getProperty("endpoint", BASE_URL);
-        }
-
-        @BeforeMethod
         public void setup(){
+            endpoint = System.getProperty("endpoint", BASE_URL);
             String environmentToUse = System.getProperty("environment", "chrome");
             this.baseSteps = EnvironmentFactory.getEnvironment(environmentToUse);
         }

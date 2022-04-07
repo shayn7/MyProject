@@ -7,6 +7,7 @@ import io.qameta.allure.Attachment;
 import io.qameta.allure.Step;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -23,7 +24,6 @@ public abstract class BaseSteps {
     private final Environments environment;
     private WebDriver driver;
     private BasePage expectedPage;
-    private String parentWindow;
 
     protected BaseSteps(Environments environment) {
         this.environment = environment;
@@ -31,7 +31,12 @@ public abstract class BaseSteps {
 
     public void startSession() {
         MutableCapabilities options = initCapabilities();
-        driver = DriverFactory.getDriver(environment, options);
+        if (environment == Environments.REMOTE) {
+            String hub = System.getProperty("hub");
+            driver = DriverFactory.getRemoteDriver(hub, options);
+        } else {
+            driver = DriverFactory.getDriver(environment, options);
+        }
     }
 
     public void iShouldBeOnPage(Pages page){
@@ -44,6 +49,21 @@ public abstract class BaseSteps {
 
     public <T extends BasePage> T getExpectedPage(){
         return (T) expectedPage;
+    }
+
+    public void pressEnterButton() {
+        Actions builder = new Actions(driver);
+        builder.sendKeys(Keys.RETURN).perform();
+    }
+
+    public void hoverOverAnElement(WebElement element){
+        Actions action = new Actions(driver);
+        action.moveToElement(element).perform();
+    }
+
+    public void doubleClickOnElementAndSetNewText(WebElement element, String value) {
+        Actions action = new Actions(driver);
+        action.moveToElement(element).doubleClick().doubleClick().sendKeys(value).build().perform();
     }
 
     @Step("getting URL: {0}")
@@ -89,43 +109,12 @@ public abstract class BaseSteps {
         }
     }
 
-    public void openNewWindow() {
-        ((JavascriptExecutor) driver).executeScript("window.open('about:blank','_blank');");
-    }
-
-    public void switchWindow(){
-        parentWindow = setParentWindow();
-        Set<String> windows = getAllWindows();
-        for(String child_window : windows){
-            if(!parentWindow.equals(child_window))
-                driver.switchTo().window(child_window);
-        }
-    }
-
-    public void closeWindow(){
-        sleep(3);
-        driver.close();
-        sleep(3);
-    }
-
-    public String getParentWindow(){
-        return parentWindow;
-    }
-
-    public void switchToParentWindow(String parentWindow){
-        driver.switchTo().window(parentWindow);
-    }
-
     public boolean isElementDisabled(WebElement element){
         return (boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].hasAttribute('disabled)';", element);
     }
 
     public void tearDown(){
         if(driver != null) driver.quit();
-    }
-
-    public void refreshPage() {
-        driver.navigate().refresh();
     }
 
     public String getPageTitle() {
@@ -145,25 +134,9 @@ public abstract class BaseSteps {
         saveTextLog(text);
     }
 
-    private void sleep(int timeInSeconds){
-        try {
-            TimeUnit.SECONDS.sleep(timeInSeconds);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
     private void waitFor(ExpectedCondition<WebElement> webElementExpectedCondition){
         WebDriverWait wait = new WebDriverWait(driver, 30);
         wait.until(webElementExpectedCondition);
-    }
-
-    private String setParentWindow(){
-        return driver.getWindowHandle();
-    }
-
-    private Set<String> getAllWindows(){
-        return driver.getWindowHandles();
     }
 
     @Attachment(value = "{0}", type = "text/plain")
