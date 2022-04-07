@@ -16,4 +16,5 @@ public class FirefoxSteps extends BaseSteps{
         //options.addArguments("--window-size=1920,1200");
         return options;
     }
+
 }
